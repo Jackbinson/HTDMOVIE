@@ -29,7 +29,6 @@ BEGIN
     v_seat_count := array_length(p_seat_codes, 1);
     v_total_price := v_unit_price * v_seat_count;
 
-    -- --- [FIX LỖI FOR UPDATE] ---
     -- Dùng PERFORM để khóa dòng
     PERFORM id
     FROM show_seats
@@ -40,7 +39,6 @@ BEGIN
 
     -- Đếm số dòng đã khóa được
     GET DIAGNOSTICS v_valid_seats = ROW_COUNT;
-    -- ---------------------------
 
     IF v_valid_seats != v_seat_count THEN
         RAISE EXCEPTION 'Conflict: Một số ghế bạn chọn đã bị người khác giữ!';
@@ -97,6 +95,6 @@ BEGIN
     UPDATE bookings 
     SET payment_status = 'FAILED' 
     WHERE id = p_booking_id 
-      AND payment_status = 'PENDING'; -- Chỉ update nếu đang Pending
+      AND payment_status = 'PENDING';
 END;
 $$;
