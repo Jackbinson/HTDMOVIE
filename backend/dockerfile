@@ -1,0 +1,16 @@
+# backend/Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package.json (Vì đang ở trong folder backend nên chỉ cần ghi là ./)
+COPY package*.json ./
+
+RUN npm install
+
+# Copy toàn bộ code trong folder backend vào container
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

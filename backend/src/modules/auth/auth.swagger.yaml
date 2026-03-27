@@ -1,0 +1,62 @@
+paths:
+  /auth/register:
+    post:
+      summary: Đăng ký tài khoản mới
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+                - fullName
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                fullName:
+                  type: string
+      responses:
+        201:
+          description: Đăng ký thành công
+        400:
+          description: Lỗi dữ liệu
+
+  /auth/login:
+    post:
+      summary: Đăng nhập vào hệ thống
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: hung_admin
+                password:
+                  type: string
+                  example: password123
+      responses:
+        200:
+          description: Đăng nhập thành công, trả về Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+        401:
+          description: Sai tài khoản hoặc mật khẩu
