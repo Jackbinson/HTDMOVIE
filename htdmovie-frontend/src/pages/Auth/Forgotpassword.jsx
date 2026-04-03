@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import BaseInput from '../../components/Baseinput';
 import BaseButton from '../../components/BaseButton';
 import AuthLayout from '../../components/AuthLayout';
@@ -11,7 +12,7 @@ const ForgotPassword = () => {
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
@@ -20,14 +21,24 @@ const ForgotPassword = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    console.log('Se gui yeu cau khoi phuc toi email:', email);
+    try {
+      setIsSubmitting(true);
+      setMessage('');
 
-    window.setTimeout(() => {
-      setMessage('Yeu cau da gui thanh cong! Vui long kiem tra hop thu email cua ban.');
+      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', {
+        email
+      });
+
+      setMessage(response.data?.message || 'Yeu cau khoi phuc da duoc gui.');
       setIsError(false);
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || 'Khong the gui yeu cau khoi phuc luc nay.'
+      );
+      setIsError(true);
+    } finally {
       setIsSubmitting(false);
-    }, 500);
+    }
   };
 
   return (

@@ -6,6 +6,8 @@ import BaseButton from '../../components/BaseButton';
 import AuthLayout from '../../components/AuthLayout';
 import AuthStatusBanner from '../../components/AuthStatusBanner';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const Register = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [errorMsg, setErrorMsg] = useState('');
@@ -25,7 +27,13 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.email || !formData.password) {
+    const payload = {
+      username: formData.username.trim(),
+      email: formData.email.trim().toLowerCase(),
+      password: formData.password
+    };
+
+    if (!payload.username || !payload.email || !payload.password) {
       setSuccessMsg('');
       setErrorMsg('Vui long nhap day du thong tin dang ky!');
       return;
@@ -36,7 +44,7 @@ const Register = () => {
       setErrorMsg('');
       setSuccessMsg('');
 
-      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, payload);
       console.log('Dang ky thanh cong du lieu:', response.data);
       setSuccessMsg('Tao tai khoan thanh cong! He thong se dua ban ve trang dang nhap...');
 
