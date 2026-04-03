@@ -35,12 +35,14 @@ const bookingRoutes = require('./modules/booking/booking.routes');
 const paymentRoutes = require('./modules/payment/payment.routes');
 const authRoutes = require('./modules/auth/auth.routes'); 
 const adminRoutes = require('./modules/admin/admin.routes');
+const staffRoutes = require('./modules/staff/staff.router');
 const recommendRouter = require('./modules/recommend/recommend.router');
 const seatRoutes = require('./modules/seats/seats.router')
 app.use('/api/auth', authRoutes); 
 app.use('/api/bookings', bookingRoutes); 
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/staff', staffRoutes);
 app.use('/api/seats', seatRoutes);
 app.use('/api', recommendRouter); 
 // Test Route

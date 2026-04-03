@@ -66,6 +66,45 @@ const bookingController = {
         message: "Lỗi máy chủ khi tải trạng thái ghế"
       });
     }
+  },
+
+  getBookingById: async (req, res) => {
+    try {
+      const { bookingId } = req.params;
+      const booking = await bookingRepo.getBookingById(bookingId);
+
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: 'Khong tim thay booking.'
+        });
+      }
+
+      const requesterId = req.user?.id;
+      const requesterRole = req.user?.role;
+
+      if (
+        requesterRole !== 'admin' &&
+        requesterRole !== 'staff' &&
+        Number(booking.user_id) !== Number(requesterId)
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: 'Ban khong co quyen xem booking nay.'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: booking
+      });
+    } catch (error) {
+      console.error('Loi getBookingById controller:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Loi may chu khi tai chi tiet booking.'
+      });
+    }
   }
 };
 
