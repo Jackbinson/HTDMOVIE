@@ -37,13 +37,17 @@ const authRoutes = require('./modules/auth/auth.routes');
 const adminRoutes = require('./modules/admin/admin.routes');
 const staffRoutes = require('./modules/staff/staff.router');
 const recommendRouter = require('./modules/recommend/recommend.router');
-const seatRoutes = require('./modules/seats/seats.router')
+const seatRoutes = require('./modules/seats/seats.router');
+const userRoutes = require('./modules/user/user.routes');
+const managementAiRoutes = require('./modules/management-ai/management-ai.routes');
 app.use('/api/auth', authRoutes); 
 app.use('/api/bookings', bookingRoutes); 
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/seats', seatRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/management-ai', managementAiRoutes);
 app.use('/api', recommendRouter); 
 // Test Route
 app.get('/', (req, res) => {

@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const pool = require('../../config/database');
 const redisClient = require('../../config/redis');
 const { hasTicketIsUsedColumn } = require('../utils/ticketSchema');
+const { HOLD_DURATION_SECONDS } = require('./booking.constants');
 
 const buildTicketCode = (bookingId, showId, seatCode) => {
   const randomSuffix = crypto.randomBytes(4).toString('hex').toUpperCase();
@@ -16,7 +17,7 @@ class BookingRepository {
    * @param {Array} seatCodes
    */
   async holdSeats(userId, showId, seatCodes) {
-    const holdDuration = 600;
+    const holdDuration = HOLD_DURATION_SECONDS;
     const lockedSeats = [];
 
     try {
@@ -39,6 +40,15 @@ class BookingRepository {
 
       const query = 'SELECT * FROM hold_seats_transaction($1, $2, $3)';
       const result = await pool.query(query, [userId, showId, seatCodes]);
+
+      if (result.rows[0]?.new_booking_id) {
+        await pool.query(
+          `UPDATE show_seats
+           SET held_expires_at = NOW() + ($2 * INTERVAL '1 second')
+           WHERE booking_id = $1 AND status = 1`,
+          [result.rows[0].new_booking_id, holdDuration]
+        );
+      }
 
       return {
         booking_info: result.rows[0],
@@ -130,14 +140,17 @@ class BookingRepository {
    */
   async getHeldSeats(showId) {
     try {
-      const pattern = `seat_hold:${showId}:*`;
-      const keys = await redisClient.keys(pattern);
+      const result = await pool.query(
+        `SELECT seat_code
+         FROM show_seats
+         WHERE show_id = $1
+           AND status = 1
+           AND held_expires_at > NOW()
+         ORDER BY seat_code ASC`,
+        [showId]
+      );
 
-      if (!keys || keys.length === 0) {
-        return [];
-      }
-
-      return keys.map(key => key.split(':')[2]);
+      return result.rows.map(row => row.seat_code);
     } catch (error) {
       console.error('Loi khi quet Redis lay ghe held:', error);
       throw new Error('Khong the lay danh sach ghe dang giu');

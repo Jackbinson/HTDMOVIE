@@ -1,6 +1,15 @@
 const pool = require('../../config/database'); 
 const logger = require('../utils/logger'); 
 
+const ensureRoomExists = async roomId => {
+  const result = await pool.query(
+    'SELECT id, name, total_seats FROM rooms WHERE id = $1',
+    [roomId]
+  );
+
+  return result.rows[0] || null;
+};
+
 // 1. Lấy danh sách phim 
 exports.getMovies = async (req, res) => {
     try {
@@ -31,8 +40,17 @@ exports.getMovies = async (req, res) => {
 // 2. Thêm phim mới 
 exports.createMovie = async (req, res) => {
   try {
-    const { title, description, price, start_time, duration, room_id } = req.body;
+    const payload = req.validated?.body || req.body;
+    const { title, description, price, start_time, duration, room_id } = payload;
     const posterUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const room = await ensureRoomExists(room_id);
+
+    if (!room) {
+      return res.status(400).json({
+        success: false,
+        message: `Phong chieu ID ${room_id} khong ton tai. Vui long chon mot phong hop le.`
+      });
+    }
 
     const query = `
       INSERT INTO shows (movie_name, description, price, start_time, duration, room_id, poster_url)
@@ -50,6 +68,73 @@ exports.createMovie = async (req, res) => {
 
   } catch (err) {
     logger.error(`Lỗi thêm phim: ${err.message}`);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateMovie = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const payload = req.validated?.body || req.body;
+    const { title, description, price, start_time, duration, room_id } = payload;
+    const room = await ensureRoomExists(room_id);
+
+    if (!room) {
+      return res.status(400).json({
+        success: false,
+        message: `Phong chieu ID ${room_id} khong ton tai. Vui long chon mot phong hop le.`
+      });
+    }
+
+    const currentMovieResult = await pool.query(
+      'SELECT id, poster_url FROM shows WHERE id = $1',
+      [movieId]
+    );
+
+    if (currentMovieResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Khong tim thay phim can cap nhat.'
+      });
+    }
+
+    const nextPosterUrl = req.file
+      ? `/uploads/${req.file.filename}`
+      : currentMovieResult.rows[0].poster_url;
+
+    const query = `
+      UPDATE shows
+      SET
+        movie_name = $1,
+        description = $2,
+        price = $3,
+        start_time = $4,
+        duration = $5,
+        room_id = $6,
+        poster_url = $7
+      WHERE id = $8
+      RETURNING id, movie_name AS title, description, start_time, duration, price, room_id, poster_url
+    `;
+
+    const result = await pool.query(query, [
+      title,
+      description,
+      price,
+      start_time,
+      duration,
+      room_id,
+      nextPosterUrl,
+      movieId
+    ]);
+
+    logger.info(`Admin ${req.user?.username || 'Admin'} da cap nhat phim ID ${movieId}: ${title}`);
+    res.json({
+      success: true,
+      message: 'Cap nhat phim thanh cong!',
+      data: result.rows[0]
+    });
+  } catch (err) {
+    logger.error(`Loi cap nhat phim: ${err.message}`);
     res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -13,8 +13,7 @@ import {
   Receipt,
   Store
 } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL, buildAssetUrl } from '../../config/api';
 
 const formatCurrency = value => `${Number(value || 0).toLocaleString()}d`;
 
@@ -605,7 +604,7 @@ const MovieDetail = () => {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <img
-            src={`http://localhost:5000${show.poster_url}`}
+            src={buildAssetUrl(show.poster_url)}
             className="mb-6 w-full rounded-2xl shadow-2xl"
             alt={show.title}
           />

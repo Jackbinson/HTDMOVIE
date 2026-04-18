@@ -53,7 +53,7 @@ BEGIN
     SET status = 1,
         booking_id = v_booking_id,
         holder_id = p_user_id,
-        held_expires_at = NOW() + INTERVAL '15 minutes'
+        held_expires_at = NOW() + INTERVAL '10 minutes'
     WHERE show_id = p_show_id AND seat_code = ANY(p_seat_codes);
 
     -- Trả kết quả về cho Node.js

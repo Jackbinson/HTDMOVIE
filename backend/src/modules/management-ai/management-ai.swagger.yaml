@@ -1,0 +1,61 @@
+paths:
+  /management-ai/overview:
+    get:
+      summary: Lay tong hop AI ho tro quan ly
+      tags: [Management AI]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 90
+            default: 7
+          description: So ngay gan nhat can phan tich
+      responses:
+        200:
+          description: Tong hop KPI, canh bao va goi y dieu hanh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        401:
+          description: Chua dang nhap
+        403:
+          description: Khong du quyen
+
+  /management-ai/notion/export:
+    post:
+      summary: Xuat bao cao quan ly sang Notion
+      tags: [Management AI]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                days:
+                  type: integer
+                  minimum: 1
+                  maximum: 90
+                  default: 7
+                title:
+                  type: string
+                  example: HTDMOVIE Management Report - 2026-04-16
+      responses:
+        201:
+          description: Tao page bao cao tren Notion thanh cong
+        500:
+          description: Thieu cau hinh Notion hoac loi ket noi Notion API

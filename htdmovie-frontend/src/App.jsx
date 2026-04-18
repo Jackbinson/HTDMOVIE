@@ -5,6 +5,7 @@ import Register from './pages/Auth/Register';
 import ForgotPassword from './pages/Auth/Forgotpassword';
 import Home from './pages/Customer/Home';
 import MovieDetails from './pages/Customer/MovieDetails';
+import MyTickets from './pages/Customer/MyTickets';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import StaffDashboard from './pages/Staff/StaffDashboard';
 
@@ -22,6 +23,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/my-tickets" element={<MyTickets />} />
       <Route path="/movie/:movieId" element={<MovieDetails />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/staff" element={<StaffDashboard />} />

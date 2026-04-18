@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Play, Ticket, TrendingUp, Loader2, AlertCircle, X } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { Dialog, DialogPanel, DialogBackdrop } from '@headlessui/react';
+import { API_BASE_URL, buildAssetUrl } from '../../config/api';
 
 const Home = () => {
   const [movies, setMovies] = useState([]);
@@ -12,14 +13,12 @@ const Home = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [isOpenTrailer, setIsOpenTrailer] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         const [moviesResponse, trendingResponse] = await Promise.all([
-          axios.get(`${API_URL}/movies`),
-          axios.get(`${API_URL}/trending`)
+          axios.get(`${API_BASE_URL}/movies`),
+          axios.get(`${API_BASE_URL}/trending`)
         ]);
 
         const movieList = moviesResponse.data?.success ? moviesResponse.data.data : [];
@@ -42,7 +41,7 @@ const Home = () => {
     };
 
     fetchMovies();
-  }, [API_URL]);
+  }, []);
 
   if (loading) {
     return (
@@ -63,7 +62,7 @@ const Home = () => {
   }
 
   const featuredImageUrl = featuredMovie?.poster_url
-    ? `http://localhost:5000${featuredMovie.poster_url}`
+    ? buildAssetUrl(featuredMovie.poster_url)
     : 'https://placehold.co/1920x1080/1a1a1a/FFF?text=NO+BANNER';
 
   const trailerId = featuredMovie?.trailer_id || 'Way9Dexny3w';
@@ -127,7 +126,7 @@ const Home = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {movies.map((movie) => {
             const imgUrl = movie.poster_url
-              ? `http://localhost:5000${movie.poster_url}`
+              ? buildAssetUrl(movie.poster_url)
               : 'https://placehold.co/300x450/2d2d2d/FFF?text=NO+POSTER';
 
             return (

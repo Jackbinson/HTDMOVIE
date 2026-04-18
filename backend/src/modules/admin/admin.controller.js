@@ -124,8 +124,25 @@ exports.getBookingOverview = async (req, res) => {
     logger.info(`User [${req.user.username}] (${req.user.role}) dang xem booking overview.`);
 
     const result = await pool.query(`
-      SELECT *
-      FROM v_booking_overview
+      SELECT
+        b.id AS booking_id,
+        u.id AS user_id,
+        u.username,
+        u.full_name,
+        u.email,
+        s.id AS show_id,
+        s.movie_name,
+        s.start_time,
+        s.price AS ticket_price,
+        r.id AS room_id,
+        r.name AS room_name,
+        b.total_amount,
+        b.payment_status,
+        b.created_at
+      FROM bookings b
+      JOIN users u ON b.user_id = u.id
+      JOIN shows s ON b.show_id = s.id
+      LEFT JOIN rooms r ON s.room_id = r.id
       ORDER BY created_at DESC, booking_id DESC
     `);
 

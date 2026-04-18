@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Film, LogOut, UserCircle } from 'lucide-react';
+import { Film, LogOut, Ticket, UserCircle } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -32,6 +32,14 @@ const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-6">
+          <Link
+            to="/my-tickets"
+            className="hidden md:inline-flex items-center gap-2 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 transition hover:border-red-600 hover:bg-red-600 hover:text-white"
+          >
+            <Ticket className="h-4 w-4" />
+            Ve cua toi
+          </Link>
+
           <div className="hidden md:flex items-center gap-2 text-gray-300 transition-colors">
             <UserCircle className="w-6 h-6" />
             <span className="font-medium text-sm">

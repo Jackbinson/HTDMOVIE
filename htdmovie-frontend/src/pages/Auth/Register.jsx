@@ -5,8 +5,7 @@ import BaseInput from '../../components/Baseinput';
 import BaseButton from '../../components/BaseButton';
 import AuthLayout from '../../components/AuthLayout';
 import AuthStatusBanner from '../../components/AuthStatusBanner';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../config/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });

@@ -5,6 +5,7 @@ import BaseInput from '../../components/Baseinput';
 import BaseButton from '../../components/BaseButton';
 import AuthLayout from '../../components/AuthLayout';
 import AuthStatusBanner from '../../components/AuthStatusBanner';
+import { API_BASE_URL } from '../../config/api';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -25,7 +26,7 @@ const ForgotPassword = () => {
       setIsSubmitting(true);
       setMessage('');
 
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', {
+      const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, {
         email
       });
 

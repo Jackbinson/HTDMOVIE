@@ -1,12 +1,24 @@
 const pool = require('../../config/database');
 const logger = require('../utils/logger');
 const { hasTicketIsUsedColumn } = require('../utils/ticketSchema');
+const {
+  decryptTicketQrPayload,
+  isEncryptedTicketQrPayload
+} = require('../utils/ticketQrToken');
 
 const getTicketCodeFromRequest = req =>
   req.body?.ticketCode?.trim() ||
   req.params?.ticketCode?.trim() ||
   req.query?.ticketCode?.trim() ||
   '';
+
+const resolveTicketCode = ticketCode => {
+  if (!isEncryptedTicketQrPayload(ticketCode)) {
+    return ticketCode;
+  }
+
+  return decryptTicketQrPayload(ticketCode) || '';
+};
 
 const getTicketByCode = async ticketCode => {
   const hasIsUsedColumn = await hasTicketIsUsedColumn();
@@ -56,7 +68,7 @@ const formatTicketData = ticket => ({
 
 exports.getTicketForCheckIn = async (req, res) => {
   try {
-    const ticketCode = getTicketCodeFromRequest(req);
+    const ticketCode = resolveTicketCode(getTicketCodeFromRequest(req));
 
     if (!ticketCode) {
       return res.status(400).json({
@@ -91,7 +103,7 @@ exports.getTicketForCheckIn = async (req, res) => {
 exports.checkInTicket = async (req, res) => {
   try {
     const hasIsUsedColumn = await hasTicketIsUsedColumn();
-    const ticketCode = getTicketCodeFromRequest(req);
+    const ticketCode = resolveTicketCode(getTicketCodeFromRequest(req));
 
     if (!ticketCode) {
       return res.status(400).json({

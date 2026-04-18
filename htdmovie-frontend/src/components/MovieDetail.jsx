@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Loader2, AlertCircle, Clock, Ticket, MapPin, CalendarDays, ChevronLeft } from 'lucide-react'; 
 import Navbar from '../components/Navbar';
+import { API_BASE_URL, buildAssetUrl } from '../config/api';
 
 const MovieDetail = () => {
   const { id } = useParams();
@@ -12,12 +13,10 @@ const MovieDetail = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
   useEffect(() => {
     const fetchMovieDetail = async () => {
       try {
-        const response = await axios.get(`${API_URL}/movies/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
         if (response.data && response.data.success) {
           setMovie(response.data.data);
         }
@@ -57,7 +56,7 @@ const MovieDetail = () => {
   }
 
   const imageUrl = movie.poster_url 
-    ? `http://localhost:5000${movie.poster_url}` 
+    ? buildAssetUrl(movie.poster_url) 
     : 'https://placehold.co/300x450/2d2d2d/FFF?text=NO+POSTER';
 
   return (

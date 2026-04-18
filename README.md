@@ -90,7 +90,17 @@ CLIENT_URL=http://localhost:5173
 REACT_APP_API_URL=http://localhost:3004
 REDIS_HOST=localhost
 REDIS_PORT=6379
+NOTION_API_KEY=your_notion_integration_secret
+NOTION_PARENT_PAGE_ID=your_notion_page_id
+NOTION_DATA_SOURCE_ID=
+NOTION_DATA_SOURCE_TITLE_PROPERTY=Name
 ```
+
+Ghi chu cho Notion:
+
+- Cau hinh `NOTION_PARENT_PAGE_ID` neu muon tao page bao cao ben duoi mot page co san.
+- Cau hinh `NOTION_DATA_SOURCE_ID` neu muon tao ban ghi bao cao trong Notion database/data source.
+- Khi dung `NOTION_DATA_SOURCE_ID`, ten cot title mac dinh la `Name` va co the doi bang `NOTION_DATA_SOURCE_TITLE_PROPERTY`.
 
 ### 2. Frontend
 
@@ -125,12 +135,21 @@ Mot so nhom module chinh trong `backend/src/modules/`:
 - `recommend`
 - `seats`
 - `showtimes`
+- `management-ai`
 
 Backend entry point nam tai `backend/src/server.js`.
+
+## Management AI + Notion
+
+Backend da co them module tro ly ho tro quan ly cho `admin/staff`:
+
+- `GET /api/management-ai/overview?days=7`: tong hop KPI, doanh thu, ty le booking, top phim, khach hang noi bat va goi y hanh dong.
+- `POST /api/management-ai/notion/export`: tao mot bao cao dinh dang Markdown va day len Notion bang Notion API.
+
+Tai lieu chi tiet xem tai Swagger: `/api-docs`.
 
 ## Ghi chu
 
 - Khong nen day file `.env` that len GitHub.
 - Thu muc `node_modules/` da duoc bo qua boi `.gitignore`.
 - Neu database da ton tai volume cu, co the can xoa volume Docker de chay lai script khoi tao tu dau.
-

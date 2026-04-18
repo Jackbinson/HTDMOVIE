@@ -22,6 +22,13 @@ router.post('/',
     validate(createMovieSchema),
     movieController.createMovie 
 );
+router.put('/:id',
+    authMiddleware,
+    roleMiddleware(['admin']),
+    upload.single('poster'),
+    validate(createMovieSchema),
+    movieController.updateMovie
+);
 router.get('/:id', movieController.getMovieById);
 // 3. Admin API: Cập nhật riêng tấm ảnh poster
 router.patch('/:id/poster', 

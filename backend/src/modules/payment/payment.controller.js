@@ -1,10 +1,39 @@
 const pool = require('../../config/database');
 const bookingRepo = require('../booking/booking.repository');
 const { hasTicketIsUsedColumn } = require('../utils/ticketSchema');
+const {
+  decryptPaymentQrPayload,
+  encryptPaymentQrPayload,
+  isEncryptedPaymentQrPayload
+} = require('../utils/paymentQrToken');
 
 const BANK_ID = 'BIDV';
 const ACCOUNT_NO = '8861977226';
 const ACCOUNT_NAME = 'HTD MOVIE';
+
+const resolveBookingIdFromTransferContent = content => {
+  const normalizedContent = String(content || '').trim();
+
+  if (!normalizedContent) {
+    return null;
+  }
+
+  if (isEncryptedPaymentQrPayload(normalizedContent)) {
+    return decryptPaymentQrPayload(normalizedContent);
+  }
+
+  const encryptedMatch = normalizedContent.match(/(HTDPAY\.V1\.[A-F0-9.]+)/i);
+  if (encryptedMatch) {
+    return decryptPaymentQrPayload(encryptedMatch[1]);
+  }
+
+  const legacyMatch = normalizedContent.match(/PAY\s*(\d+)/i);
+  if (legacyMatch) {
+    return parseInt(legacyMatch[1], 10);
+  }
+
+  return null;
+};
 
 const ensureBookingAccess = (booking, requester) => {
   const requesterId = requester?.id;
@@ -90,7 +119,7 @@ const getPaymentBillData = async bookingId => {
     seats,
     seatCodes: seats.map(seat => seat.seat_code),
     ticketCodes: seats.map(seat => seat.ticket_code).filter(Boolean),
-    description: `PAY ${booking.booking_id}`
+    description: encryptPaymentQrPayload(booking.booking_id)
   };
 };
 
@@ -104,7 +133,8 @@ const buildResponse = (bill, paymentMethod) => {
   if (paymentMethod === 'ONLINE') {
     const qrCodeUrl =
       `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact.png` +
-      `?amount=${bill.amount}&addInfo=${bill.description}&accountName=${ACCOUNT_NAME}`;
+      `?amount=${bill.amount}&addInfo=${encodeURIComponent(bill.description)}` +
+      `&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
 
     return {
       ...baseData,
@@ -199,10 +229,9 @@ exports.handleSePayWebhook = async (req, res) => {
 
     if (transferType !== 'in') return res.json({ success: true });
 
-    const match = content.match(/PAY\s*(\d+)/i);
-    if (!match) return res.json({ success: true, message: 'No booking ID' });
+    const bookingId = resolveBookingIdFromTransferContent(content);
+    if (!bookingId) return res.json({ success: true, message: 'No booking ID' });
 
-    const bookingId = parseInt(match[1], 10);
     const booking = await bookingRepo.getBookingById(bookingId);
 
     if (!booking) return res.json({ success: true, message: 'Booking not found' });

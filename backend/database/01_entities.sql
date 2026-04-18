@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS users CASCADE;
 -- 2. TẠO BẢNG (SCHEMA)
 -- ==============================================================
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Bổ sung Role 'staff' vào bảng users
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -118,10 +120,15 @@ JOIN rooms r ON s.room_id = r.id;
 -- ==============================================================
 
 -- Thêm User, Admin và Staff
+-- Tai khoan admin moi:
+-- Email: boss@htdmovie.com
+-- Username: boss_admin
+-- Mat khau tam thoi: Boss@123456
 INSERT INTO users (username, password_hash, full_name, email, role) VALUES 
-('jack_dev', '$2b$10$wYw2JbSgLh7hT.3Z7W.AbeO.zH9qZ7W.AbeO', 'Jack Developer', 'jack_dev@example.com', 'user'),
-('super_admin', '$2b$10$wYw2JbSgLh7hT.3Z7W.AbeO.zH9qZ7W.AbeO', 'Quản Trị Viên', 'admin@htdmovie.com', 'admin'),
-('tuan_staff', '$2b$10$wYw2JbSgLh7hT.3Z7W.AbeO.zH9qZ7W.AbeO', 'NV Soát Vé Tuấn', 'tuan_staff@htdmovie.com', 'staff');
+('jack_dev', crypt('Jack@123456', gen_salt('bf')), 'Jack Developer', 'jack_dev@example.com', 'user'),
+('super_admin', crypt('Admin@123456', gen_salt('bf')), 'Quản Trị Viên', 'admin@htdmovie.com', 'admin'),
+('boss_admin', crypt('Boss@123456', gen_salt('bf')), 'Boss HTD Movie', 'boss@htdmovie.com', 'admin'),
+('tuan_staff', crypt('Staff@123456', gen_salt('bf')), 'NV Soát Vé Tuấn', 'tuan_staff@htdmovie.com', 'staff');
 
 INSERT INTO rooms (name, total_seats) VALUES 
 ('Cinema 01 - Standard', 100),
